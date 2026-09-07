@@ -457,11 +457,87 @@
     <h3 class="course-title" style="font-size:22px;" id="modalTitle"></h3>
     <p class="course-desc" id="modalDesc" style="margin-bottom:20px;"></p>
     <ul class="syllabus" id="modalSyllabus"></ul>
-    <button class="btn btn-primary" style="width:100%; text-align:center; margin-top:20px;" data-view="auth" id="modalEnroll" data-bn="ভর্তি হোন" data-en="Enroll Now">ভর্তি হোন</button>
+    <button class="btn btn-primary" style="width:100%; text-align:center; margin-top:20px;" id="modalStartLesson" data-bn="লেসন শুরু করুন" data-en="Start Lessons">লেসন শুরু করুন</button>
+    <button class="btn btn-ghost-dark" style="width:100%; text-align:center; margin-top:10px;" data-view="auth" id="modalEnroll" data-bn="ভর্তি হোন (অ্যাকাউন্টে সেভ করতে)" data-en="Enroll (save to account)">ভর্তি হোন (অ্যাকাউন্টে সেভ করতে)</button>
   </div>
 </div>
 
+<!-- ================= LESSON VIEW ================= -->
+<div class="view" id="view-lesson">
+  <section class="section" style="padding-top:36px;">
+    <div class="wrap">
+      <button class="btn btn-ghost-dark" id="lessonBack" style="margin-bottom:20px; font-size:13px; padding:8px 16px;" data-bn="← কোর্সে ফিরুন" data-en="← Back to courses">← কোর্সে ফিরুন</button>
+      <div class="section-head" style="margin-bottom:24px;">
+        <span class="section-tag" id="lessonCourseTitle"></span>
+        <h2 class="section-h" id="lessonStepTitle" style="font-size:24px;"></h2>
+      </div>
+      <div id="lessonStepList" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px;"></div>
+      <div class="dash-card" style="padding:26px 22px;">
+        <p id="lessonBody" style="font-size:15px; color:#33403c; line-height:1.75; margin-bottom:18px;"></p>
+        <pre class="codeblock" id="lessonCode" style="background:var(--ink); border-radius:6px; display:none;"></pre>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:24px;">
+        <button class="btn btn-ghost-dark" id="lessonPrev" data-bn="← আগের ধাপ" data-en="← Previous">← আগের ধাপ</button>
+        <button class="btn btn-primary" id="lessonNext" data-bn="পরের ধাপ →" data-en="Next →">পরের ধাপ →</button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <script>
+const lessonsData = {
+  "HTML ও CSS বেসিক্স": [
+    {
+      title: "HTML ট্যাগ ও স্ট্রাকচার",
+      body: "HTML হলো ওয়েবপেজের কঙ্কাল — প্রতিটা এলিমেন্ট একটা ট্যাগ দিয়ে শুরু আর শেষ হয়। নিচের কোডটা একটা বেসিক HTML পেজের গঠন দেখাচ্ছে। <html> সবকিছুর বাইরের মোড়ক, <head>-এ থাকে পেজের তথ্য (টাইটেল ইত্যাদি), আর <body>-তে থাকে যা ব্রাউজারে দেখা যায়।",
+      code: `<!DOCTYPE html>
+<html>
+  <head>
+    <title>আমার প্রথম পেজ</title>
+  </head>
+  <body>
+    <h1>স্বাগতম!</h1>
+    <p>এটা আমার প্রথম HTML পেজ।</p>
+  </body>
+</html>`
+    },
+    {
+      title: "CSS সিলেক্টর ও বক্স মডেল",
+      body: "CSS দিয়ে HTML এলিমেন্টের রঙ, সাইজ, স্পেসিং ঠিক করা হয়। প্রতিটা এলিমেন্ট আসলে একটা বক্স — যার থাকে content, padding, border, আর margin। সিলেক্টর দিয়ে বলে দিতে হয় কোন এলিমেন্টে স্টাইল বসবে।",
+      code: `p {
+  color: darkgreen;
+  padding: 12px;
+  border: 1px solid #ccc;
+  margin-bottom: 16px;
+}`
+    },
+    {
+      title: "ফ্লেক্সবক্স দিয়ে লেআউট",
+      body: "Flexbox দিয়ে সহজে এলিমেন্টগুলো পাশাপাশি বা মাঝখানে সাজানো যায়। display: flex; দিলে প্যারেন্ট এলিমেন্টের ভেতরের চাইল্ডগুলো এক লাইনে (বাই ডিফল্ট) বসে যায়।",
+      code: `.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}`
+    },
+    {
+      title: "রেসপন্সিভ ডিজাইন",
+      body: "সব ডিভাইসে (মোবাইল, ট্যাব, ডেস্কটপ) পেজ যেন ঠিকভাবে দেখায়, তার জন্য media query ব্যবহার করা হয়। নিচের কোডে ৬০০px-এর কম স্ক্রিনে ফন্ট সাইজ ছোট হয়ে যাচ্ছে।",
+      code: `@media (max-width: 600px) {
+  h1 {
+    font-size: 22px;
+  }
+}`
+    },
+    {
+      title: "প্রজেক্ট: পোর্টফোলিও পেজ",
+      body: "এখন যা শিখলেন তা দিয়ে একটা ছোট পোর্টফোলিও পেজ বানান — একটা হেডার (আপনার নাম), একটা about সেকশন, আর কয়েকটা প্রজেক্ট কার্ড ফ্লেক্সবক্স দিয়ে সাজিয়ে। রেসপন্সিভও করুন যেন মোবাইলে ভালো দেখায়।",
+      code: null
+    }
+  ]
+};
+
 const courses = [
   {cls:"", level:"beginner · শুরুর কোর্স", title:"HTML ও CSS বেসিক্স", desc:"ওয়েবপেজ বানানোর প্রথম ধাপ — স্ট্রাকচার আর স্টাইল একসাথে শিখুন।", price:"ফ্রি", weeks:4,
    syllabus:["HTML ট্যাগ ও স্ট্রাকচার","CSS সিলেক্টর ও বক্স মডেল","ফ্লেক্সবক্স দিয়ে লেআউট","রেসপন্সিভ ডিজাইন","প্রজেক্ট: পোর্টফোলিও পেজ"]},
@@ -490,18 +566,61 @@ document.getElementById('allCourseGrid').innerHTML = courses.map(courseCardHTML)
 
 // modal
 const modalBg = document.getElementById('modalBg');
+let currentModalCourseIdx = null;
 document.querySelectorAll('.course-card').forEach(card=>{
   card.addEventListener('click', ()=>{
+    currentModalCourseIdx = card.dataset.idx;
     const c = courses[card.dataset.idx];
     document.getElementById('modalLevel').textContent = c.level;
     document.getElementById('modalTitle').textContent = c.title;
     document.getElementById('modalDesc').textContent = c.desc;
     document.getElementById('modalSyllabus').innerHTML = c.syllabus.map((s,i)=>`<li><span class="num">0${i+1}</span>${s}</li>`).join('');
+    const startBtn = document.getElementById('modalStartLesson');
+    startBtn.style.display = lessonsData[c.title] ? 'block' : 'none';
     modalBg.classList.add('active');
   });
 });
 document.getElementById('modalClose').addEventListener('click', ()=>modalBg.classList.remove('active'));
 modalBg.addEventListener('click', e=>{ if(e.target===modalBg) modalBg.classList.remove('active'); });
+
+// ---- Lessons ----
+let currentLessons = [];
+let currentLessonStep = 0;
+function renderLesson(){
+  const lesson = currentLessons[currentLessonStep];
+  document.getElementById('lessonCourseTitle').textContent = courses[currentModalCourseIdx].title;
+  document.getElementById('lessonStepTitle').textContent = (currentLessonStep+1) + ". " + lesson.title;
+  document.getElementById('lessonBody').textContent = lesson.body;
+  const codeEl = document.getElementById('lessonCode');
+  if(lesson.code){ codeEl.style.display = 'block'; codeEl.textContent = lesson.code; }
+  else { codeEl.style.display = 'none'; }
+  document.getElementById('lessonStepList').innerHTML = currentLessons.map((l,i)=>
+    `<span style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:13px;
+     background:${i===currentLessonStep ? 'var(--amber)' : (i<currentLessonStep ? 'var(--teal)' : '#e4ddc9')};
+     color:${i<=currentLessonStep ? 'var(--ink)' : '#8a998f'};">${i+1}</span>`
+  ).join('');
+  document.getElementById('lessonPrev').style.visibility = currentLessonStep===0 ? 'hidden' : 'visible';
+  document.getElementById('lessonNext').textContent = (currentLessonStep===currentLessons.length-1)
+    ? (document.documentElement.lang==='en' ? 'Finish' : 'শেষ করুন')
+    : (document.documentElement.lang==='en' ? 'Next →' : 'পরের ধাপ →');
+}
+document.getElementById('modalStartLesson').addEventListener('click', ()=>{
+  const title = courses[currentModalCourseIdx].title;
+  currentLessons = lessonsData[title] || [];
+  currentLessonStep = 0;
+  if(currentLessons.length === 0) return;
+  modalBg.classList.remove('active');
+  showView('lesson');
+  renderLesson();
+});
+document.getElementById('lessonPrev').addEventListener('click', ()=>{
+  if(currentLessonStep>0){ currentLessonStep--; renderLesson(); window.scrollTo(0,0); }
+});
+document.getElementById('lessonNext').addEventListener('click', ()=>{
+  if(currentLessonStep < currentLessons.length-1){ currentLessonStep++; renderLesson(); window.scrollTo(0,0); }
+  else { showView('courses'); }
+});
+document.getElementById('lessonBack').addEventListener('click', ()=> showView('courses'));
 
 // view routing
 function showView(name){
